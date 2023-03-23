@@ -27,6 +27,13 @@ class UserCrudController extends AbstractCrudController
     {
         return User::class;
     }
+
+    /*public function createEntity(string $entityFqcn)
+   {
+        $user = new User();
+        $user->setUuid(Uuid::v4());
+        return $user;
+    }*/
     
     public function configureFields(string $pageName): iterable
     {
@@ -35,7 +42,7 @@ class UserCrudController extends AbstractCrudController
             TextField::new('name'),
             EmailField::new('email'),
             TextField::new('avatar'),
-            TextField::new('uuid'),
+            TextField::new('uuid')->hideOnForm(),
             CollectionField::new('Roles'),
             TextField::new('password')
         ];

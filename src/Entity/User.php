@@ -9,8 +9,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Doctrine\ORM\Mapping\CustomeIdGenerator;
-use App\Entity\Assert\NotBlank;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -39,10 +37,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $avatar = null;
 
     #[ORM\Column(type: Types::GUID)]
-    /*#[ORM\GeneratedValue('CUSTOM')]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\CustomIdGenerator('doctrine.uuid_genrator')]*/
-    //#[Assert\NotBlank()]
     private ?string $uuid = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Borrow::class)]
