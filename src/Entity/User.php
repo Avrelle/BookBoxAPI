@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\ORM\Mapping\CustomeIdGenerator;
+use App\Entity\Assert\NotBlank;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -35,7 +39,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $avatar = null;
 
     #[ORM\Column(type: Types::GUID)]
+    /*#[ORM\GeneratedValue('CUSTOM')]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\CustomIdGenerator('doctrine.uuid_genrator')]*/
+    //#[Assert\NotBlank()]
     private ?string $uuid = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Borrow::class)]
+    private Collection $borrow;
+    
+
+    public function __construct()
+    {
+        $this->borrow = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -160,5 +177,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->uuid = $uuid;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, borrow>
+     */
+    public function getBorrow(): Collection
+    {
+        return $this->borrow;
+    }
+
+    public function addBorrow(borrow $borrow): self
+    {
+        if (!$this->borrow->contains($borrow)) {
+            $this->borrow->add($borrow);
+            $borrow->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBorrow(borrow $borrow): self
+    {
+        if ($this->borrow->removeElement($borrow)) {
+            // set the owning side to null (unless already changed)
+            if ($borrow->getUser() === $this) {
+                $borrow->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString(){
+        
+       
+        return (string) $this->id;
     }
 }

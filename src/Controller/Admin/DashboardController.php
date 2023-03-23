@@ -3,7 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Book;
+use App\Entity\Borrow;
 use App\Entity\User;
+use App\Entity\Box;
+use App\Entity\Category;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -46,6 +49,9 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('User', 'fas fa-user', User::class);
-        yield MenuItem::linkToCrud('book', 'fas fa-book', Book::class);
+        yield MenuItem::linkToCrud('Book', 'fas fa-book', Book::class);
+        yield MenuItem::linkToCrud('Box', 'fas fa-box', Box::class);
+        yield MenuItem::linkToCrud('Catégory', 'fas fa-list', Category::class);
+        yield MenuItem::linkToCrud('Borrow', 'fas fa-list', Borrow::class);
     }
 }

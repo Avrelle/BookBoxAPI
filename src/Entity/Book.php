@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\BookRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -12,25 +15,47 @@ class Book
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("post:read")]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
     private ?string $author = null;
 
-    #[ORM\Column]
-    private ?int $isbn = null;
+    #[ORM\Column(type:Types::BIGINT)]
+    #[Groups("post:read")]
+    private ?string $isbn = null;
 
     #[ORM\Column]
+    #[Groups("post:read")]
     private ?bool $isAvailable = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
     private ?string $cover = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups("post:read")]
     private ?string $resume = null;
+
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'books')]
+    private Collection $category;
+
+    #[ORM\ManyToOne(inversedBy: 'books')]
+    private ?Box $box = null;
+
+    #[ORM\OneToMany(mappedBy: 'book', targetEntity: Borrow::class)]
+    private Collection $borrow;
+
+    public function __construct()
+    {
+        $this->category = new ArrayCollection();
+        $this->borrow = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,12 +86,12 @@ class Book
         return $this;
     }
 
-    public function getIsbn(): ?int
+    public function getIsbn(): ?string
     {
         return $this->isbn;
     }
 
-    public function setIsbn(int $isbn): self
+    public function setIsbn(string $isbn): self
     {
         $this->isbn = $isbn;
 
@@ -108,4 +133,76 @@ class Book
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, category>
+     */
+    public function getCategory(): Collection
+    {
+        return $this->category;
+    }
+
+    public function addCategory(category $category): self
+    {
+        if (!$this->category->contains($category)) {
+            $this->category->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(category $category): self
+    {
+        $this->category->removeElement($category);
+
+        return $this;
+    }
+
+    public function getBox(): ?Box
+    {
+        return $this->box;
+    }
+
+    public function setBox(?Box $box): self
+    {
+        $this->box = $box;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, borrow>
+     */
+    public function getBorrow(): Collection
+    {
+        return $this->borrow;
+    }
+
+    public function addBorrow(borrow $borrow): self
+    {
+        if (!$this->borrow->contains($borrow)) {
+            $this->borrow->add($borrow);
+            $borrow->setBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBorrow(borrow $borrow): self
+    {
+        if ($this->borrow->removeElement($borrow)) {
+            // set the owning side to null (unless already changed)
+            if ($borrow->getBook() === $this) {
+                $borrow->setBook(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __toString(){
+        
+       
+        return (string) $this->id;
+    }
+   
 }
