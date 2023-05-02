@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Uid\Uuid;
 
 class UserCrudController extends AbstractCrudController
 {
@@ -28,12 +29,12 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
-    /*public function createEntity(string $entityFqcn)
+    public function createEntity(string $entityFqcn)
    {
         $user = new User();
         $user->setUuid(Uuid::v4());
         return $user;
-    }*/
+    }
     
     public function configureFields(string $pageName): iterable
     {

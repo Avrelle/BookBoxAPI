@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BoxRepository::class)]
 class Box
@@ -14,24 +15,31 @@ class Box
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("get:box")]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("get:box")]
     private ?string $street = null;
 
     #[ORM\Column]
+    #[Groups("get:box")]
     private ?int $zipcode = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("get:box")]
     private ?string $city = null;
 
     #[ORM\Column(type: Types::ARRAY)]
+    #[Groups("get:box")]
     private array $geoLoc = [];
 
     #[ORM\Column]
+    #[Groups("get:box")]
     private ?int $capacity = null;
 
     #[ORM\OneToMany(mappedBy: 'box', targetEntity: Book::class)]
+    #[Groups("get:box")]
     private Collection $books;
 
     public function __construct()

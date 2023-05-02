@@ -43,12 +43,15 @@ class Book
     private ?string $resume = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'books')]
+    #[Groups("post:read")]
     private Collection $category;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
+    #[Groups("post:read")]
     private ?Box $box = null;
 
     #[ORM\OneToMany(mappedBy: 'book', targetEntity: Borrow::class)]
+    #[Groups("post:read")]
     private Collection $borrow;
 
     public function __construct()

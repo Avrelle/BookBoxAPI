@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -16,27 +17,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("user:read")]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups("user:read")]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups("user:read")]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups("user:read")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("user:read")]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("user:read")]
     private ?string $avatar = null;
 
     #[ORM\Column(type: Types::GUID)]
+    #[Groups("user:read")]
     private ?string $uuid = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Borrow::class)]
@@ -47,7 +55,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->borrow = new ArrayCollection();
     }
-
+    #[ORM\PrePersist]
+    function prePersist():void
+    {
+        $this->avatar = 'https://api.dicebear.com/6.x/pixel-art/' . $this->uuid . '/svg';
+    }
     public function getId(): ?int
     {
         return $this->id;

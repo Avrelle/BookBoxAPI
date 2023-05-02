@@ -3,22 +3,27 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Entity\Borrow;
 use App\Repository\BookRepository;
+use App\Repository\BorrowRepository;
+use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class BookController extends AbstractController
 {
-    #[Route('api/books', name: 'api_book_index', methods: ['GET'])]
-    public function index(BookRepository $bookRepository)
+    #[Route('/api/search/book/get', name: 'api_book_get', methods: ["GET"])]
+    public function GetBook (BookRepository $bookRepository)
     {
-        return $this->json($bookRepository->findAll(), 200, [], ['groups' => 'post:read']);
+      return $this->json($bookRepository->findAll(),200,[],['groups' => 'post:read']);
     }
-
+  
     #[Route('/api/book/post', name: 'api_book_post', methods: ["POST"])]
     public function store (Request $request, SerializerInterface $serializer, EntityManagerInterface $em){
       try {  
@@ -40,18 +45,50 @@ class BookController extends AbstractController
       }
     }
 
-   /* #[Route('api/books', name: 'app_book')]
-    public function getBookList(BookRepository $bookRepository, SerializerInterface $serializer): JsonResponse
+    
+    #[Route('/api/v1/book/{id}/{id_book}/borrow', name: 'api_book_borrow', methods: ["POST"])]
+    public function BorrowBook(EntityManagerInterface $entityManager, Request $request, BookRepository $bookRepository, UserRepository $userRepository) :Response
     {
-        $bookList = $bookRepository->findAll();
-        $jsonBookList = $serializer->serialize($bookList, 'json');
-        return new JsonResponse($jsonBookList, Response::HTTP_OK, [], true);
+  
+      $userId = $request->get("id");
+      $user = $userRepository->find($userId);
+      $bookId = $request->get("id_book");
+      $book = $bookRepository->find($bookId);
+      $borrow = new Borrow;
+
+      $borrow->setUser($user);
+      $borrow->setBook($book);
+      $borrow->setDateBorrow(new DateTime());
+      $book->setIsAvailable(false);
+     
+
+      $entityManager->persist($borrow);
+      $entityManager->flush();
+
+      return $this->json(["Message" => "Book borrowed"]);
     }
 
-    #[Route('/api/books/{id}', name: 'detailBook', methods: ['POST'])]
-    public function getDetailBook(Book $book, SerializerInterface $serializer): JsonResponse 
+
+    
+    #[Route('/api/v1/book/{id}/{id_book}/return', name: 'api_book_return', methods: ["PATCH"])]
+    public function ReturnBook(EntityManagerInterface $entityManager, Request $request, BookRepository $bookRepository, BorrowRepository $borrowRepository, UserRepository $userRepository) :Response
     {
-        $jsonBook = $serializer->serialize($book, 'json');
-        return new JsonResponse($jsonBook, Response::HTTP_OK, ['accept' => 'json'], true);
-    }*/
+      $userId = $request->get("id");
+      $user = $userRepository->find($userId); 
+      $bookId = $request->get("id_book");
+      $book = $bookRepository->find($bookId);
+      $borrowBook = $book->getBorrow()->first()->getId();
+      $borrow = $borrowRepository->find($borrowBook);
+      $borrow->setReturnDate(new DateTime());
+      $book->setIsAvailable(true);
+      
+      $entityManager->persist($borrow);
+      $entityManager->flush();
+
+      return $this->json(["Message" => "Book return"]);
+    }
+
+
+
+
 } 

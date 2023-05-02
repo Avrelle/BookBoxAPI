@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BorrowRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BorrowRepository::class)]
 class Borrow
@@ -12,18 +13,23 @@ class Borrow
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("borrow:read")]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE,nullable:true)]
+    #[Groups("borrow:read")]
     private ?\DateTimeInterface $dateBorrow = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE,nullable:true)]
+    #[Groups("borrow:read")]
     private ?\DateTimeInterface $returnDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'borrow')]
+    #[Groups("borrow:read")]
     private ?Book $book = null;
 
     #[ORM\ManyToOne(inversedBy: 'borrow')]
+    #[Groups("borrow:read")]
     private ?User $user = null;
 
     public function getId(): ?int
